@@ -12,8 +12,5 @@
             "name": "C. Davison",
             "email": "connorpdavison@gmail.com"
         }
-    ],
-    "require-dev": {
-        "phpunit/phpunit": "^5.3"
-    }
+    ]
 }
