@@ -1,6 +1,6 @@
 <?php
 
-namespace Life;
+namespace Game\Matrix;
 
 interface BoardWriterInterface
 {

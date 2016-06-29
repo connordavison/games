@@ -1,15 +1,18 @@
 <?php
 
-namespace Life;
+namespace Game;
 
-class Board
+abstract class Board
 {
     /**
-     * @see setWriter
-     * @see draw
-     * @var BoardWriterInterface
+     * @var array The cells on this board.
      */
-    protected $writer;
+    protected $cells;
+
+    /**
+     * @var mixed The default value for cells.
+     */
+    protected $blank = false;
 
     /**
      * Create a Board with given width and height.
@@ -23,7 +26,6 @@ class Board
 
         $this->width = $width;
         $this->height = $height;
-        $this->setWriter(new DefaultBoardWriter);
 
         for ($i = 0; $i < $height; $i++) {
             for ($j = 0; $j < $width; $j++) {
@@ -35,112 +37,51 @@ class Board
     }
 
     /**
-     * Seed this board with live cells.
-     *
-     * @param int[][] $seeds An array of co-ordinate pairs, f.e. [[1,2], [3,4]]
-     * @throws \OutOfRangeException If a given pair of co-ordinates doesn't
-     *     exist on the board.
-     */
-    public function seed($seeds)
-    {
-        foreach ($seeds as $seed) {
-            list($x, $y) = $seed;
-
-            if (!isset($this->cells[$y][$x])) {
-                throw new \OutOfRangeException(
-                    "Cell does not exist at ($x, $y)"
-                );
-            }
-
-            $this->cells[$y][$x] = true;
-        }
-    }
-
-    /**
      * Advance this board to its next generation.
      */
-    public function step()
+    abstract public function step();
+
+    /**
+     * Set the value of a cell on this board.
+     *
+     * @param int $x
+     * @param int $y
+     * @param mixed $val
+     */
+    public function setCell($x, $y, $val)
     {
-        $next_cells = [];
+        $this->checkCoords($x, $y);
 
-        for ($x = 0; $x < $this->width; $x++) {
-            for ($y = 0; $y < $this->height; $y++) {
-                $old_cell = $this->cells[$y][$x];
-                $alive_neighbours = $this->getAliveNeighbourCount($x, $y);
-
-                if (2 === $alive_neighbours) {
-                    $next_cells[$y][$x] = $old_cell;
-                } elseif (3 === $alive_neighbours) {
-                    $next_cells[$y][$x] = true;
-                } else {
-                    $next_cells[$y][$x] = false;
-                }
-            }
-        }
-
-        $this->cells = $next_cells;
+        $this->cells[$y][$x] = $val;
     }
 
     /**
-     * Get the value of the cell at given co-ordinates.
+     * Obtain the value of a cell on this board.
+     *
+     * @param int $x
+     * @param int $y
+     * @return mixed
+     */
+    public function getCell($x, $y)
+    {
+        $this->checkCoords($x, $y);
+
+        return $this->cells[$y][$x];
+    }
+
+    /**
+     * Determine if the cell with given co-ordinates exists on this board.
      *
      * @param int $x
      * @param int $y
      * @return bool
      */
-    public function getCell($x, $y)
+    public function hasCell($x, $y)
     {
-        return $this->cells[$y][$x];
+        return isset($this->cells[$y][$x]);
     }
 
     /**
-     * Identifies how many alive neighbours are in the neighbourhood of a given
-     * point on this board.
-     *
-     * @param int $x
-     * @param int $y
-     * @return int
-     */
-    public function getAliveNeighbourCount($x, $y)
-    {
-        if (!isset($this->cells[$y][$x])) {
-            throw new \OutOfRangeException(
-                "Cell does not exist at ($x, $y)"
-            );
-        }
-
-        $count = 0;
-
-        for ($i = -1; $i <= 1; $i++) {
-            for ($j = -1; $j <= 1; $j++) {
-                if (0 === $i && 0 === $j) {
-                    continue;
-                }
-
-                if (isset($this->cells[$y + $i][$x + $j])) {
-                    if ($this->cells[$y + $i][$x + $j]) {
-                        $count++;
-                    }
-                }
-            }
-        }
-
-        return $count;
-    }
-
-    /**
-     * Get the width of this board.
-     *
-     * @return int
-     */
-    public function getWidth()
-    {
-        return $this->width;
-    }
-
-    /**
-     * Get the height of this board.
-     *
      * @return int
      */
     public function getHeight()
@@ -149,24 +90,22 @@ class Board
     }
 
     /**
-     * Set a BoardWriterInterface for this Board to use.
-     *
-     * @see draw
-     * @param BoardWriterInterface $writer
+     * @return int
      */
-    public function setWriter(BoardWriterInterface $writer)
+    public function getWidth()
     {
-        $this->writer = $writer;
+        return $this->width;
     }
 
     /**
-     * Output this board using this board's BoardWriterInterface.
-     *
-     * @see setWriter
-     * @return void
+     * @param int $x
+     * @param int $y
+     * @throws \OutOfRangeException If given co-ordinates are out of range.
      */
-    public function draw()
+    protected function checkCoords($x, $y)
     {
-        $this->writer->writeBoard($this);
+        if (!$this->hasCell($x, $y)) {
+            throw new \OutOfRangeException("Cell does not exist at ($x, $y)");
+        }
     }
 }

@@ -1,10 +1,10 @@
 {
-    "name": "cdavison/life",
-    "description": "Conway's Game of Life",
+    "name": "cdavison/games",
+    "description": "Console games fuh tuh luhls.",
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Life\\": "src/"
+            "Game\\": "src/"
         }
     },
     "authors": [

@@ -1,0 +1,20 @@
+#!/usr/bin/env php
+<?php
+
+namespace Game\Matrix;
+
+include __DIR__ . '/../vendor/autoload.php';
+
+$rows = exec("tput lines");
+$cols = exec("tput cols");
+
+$board = new Board($cols - 1, $rows);
+$writer = new DefaultBoardWriter();
+
+$board->seed(0.03, 0.4);
+
+while(true) {
+    $writer->writeBoard($board);
+    usleep(100000);
+    $board->step();
+}

@@ -1,12 +1,15 @@
 #!/usr/bin/env php
 <?php
 
+namespace Game\Life;
+
 include __DIR__ . '/../vendor/autoload.php';
 
 $rows = exec("tput lines");
 $cols = exec("tput cols");
 
-$board = new Life\Board($cols - 1, $rows);
+$board = new Board($cols - 1, $rows);
+$writer = new DefaultBoardWriter();
 
 $seeds = [
     // Left node
@@ -37,7 +40,7 @@ $seeds = [
 $board->seed($seeds);
 
 while(true) {
-    $board->draw();
-    usleep(5);
+    $writer->writeBoard($board);
+    usleep(100);
     $board->step();
 }
